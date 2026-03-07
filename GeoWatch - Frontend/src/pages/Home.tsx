@@ -90,7 +90,7 @@ function Home() {
         <a
           href="/downloads/geowatch.apk"
           download
-          className="mt-6 inline-block rounded-lg bg-emerald-600 px-8 py-4 font-semibold text-white"
+          className="mt-6 inline-block rounded-lg bg-emerald-600 px-8 py-4 text-base font-semibold text-white transition hover:bg-emerald-500"
         >
           Download APK
         </a>
