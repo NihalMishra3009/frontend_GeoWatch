@@ -1,13 +1,25 @@
-import axios from 'axios'
-import type { Cluster } from '../types/cluster'
-import type { Event } from '../types/event'
+import axios from "axios"
+import type { Cluster } from "../types/cluster"
+import type { Event } from "../types/event"
+
+/*
+  Environment variable example (.env)
+  VITE_API_BASE_URL=https://geowatch-production.up.railway.app
+*/
+
+const BASE_URL =
+  import.meta.env.VITE_API_BASE_URL ||
+  "https://geowatch-production.up.railway.app"
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL ?? 'https://geowatch-production.up.railway.app/',
+  baseURL: BASE_URL,
   headers: {
-    'Content-Type': 'application/json',
+    "Content-Type": "application/json",
   },
+  timeout: 10000,
 })
+
+/* ---------------- ADMIN TYPES ---------------- */
 
 export interface RegisterAdminPayload {
   name: string
@@ -19,6 +31,8 @@ export interface LoginAdminPayload {
   email: string
   password: string
 }
+
+/* ---------------- EVENT TYPES ---------------- */
 
 export interface OrganizerPayload {
   name: string
@@ -36,34 +50,50 @@ export interface CreateEventPayload {
   organizers: OrganizerPayload[]
 }
 
+/* ---------------- ADMIN APIs ---------------- */
+
 export const registerAdmin = async (payload: RegisterAdminPayload) => {
-  const response = await api.post('/admin/register', payload)
-  return response.data
+  const { data } = await api.post("/admin/register", payload)
+  return data
 }
 
 export const loginAdmin = async (payload: LoginAdminPayload) => {
-  const response = await api.post('/admin/login', payload)
-  return response.data
+  const { data } = await api.post("/admin/login", payload)
+  return data
 }
 
+/* ---------------- EVENT APIs ---------------- */
+
 export const createEvent = async (payload: CreateEventPayload) => {
-  const response = await api.post('/events', payload)
-  return response.data
+  const { data } = await api.post("/events", payload)
+  return data
 }
 
 export const getEventById = async (eventId: string) => {
-  const response = await api.get<Event>(`/events/${eventId}`)
-  return response.data
-}
-
-export const getClustersByEventId = async (eventId: string) => {
-  const response = await api.get<Cluster[]>(`/admin/clusters/${eventId}`)
-  return response.data
+  const { data } = await api.get<Event>(`/events/${eventId}`)
+  return data
 }
 
 export const getActiveEvents = async () => {
-  const response = await api.get<Event[]>('/events/admin/active')
-  return response.data
+  const { data } = await api.get<Event[]>("/events/admin/active")
+  return data
 }
+
+/* ---------------- CLUSTER APIs ---------------- */
+
+export const getClustersByEventId = async (eventId: string) => {
+  const { data } = await api.get<Cluster[]>(`/admin/clusters/${eventId}`)
+  return data
+}
+
+/* ---------------- ERROR INTERCEPTOR ---------------- */
+
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    console.error("API Error:", error.response?.data || error.message)
+    return Promise.reject(error)
+  }
+)
 
 export default api
